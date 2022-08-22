@@ -1,6 +1,5 @@
-process.env.NTBA_FIX_319 = 1;
 const TelegramBot = require("node-telegram-bot-api");
-delete process.env.NTBA_FIX_319
+module.exports=TelegramBot
 
 {
   class forObj {
