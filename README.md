@@ -16,7 +16,7 @@ const TelegramBot = require("./node-telegram-bot-wrapper")
 
 > 项目过于简单,未上传仓库,基于node-telegram-bot-api@0.58.0适配
 
-### 方法
+### 改造方法
 
 #### onText
 
