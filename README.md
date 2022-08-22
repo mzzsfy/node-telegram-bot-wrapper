@@ -2,6 +2,13 @@
 
 对node-telegram-bot-api进行简单封装,更简单易用
 
+### 使用方法
+
+```javascript
+require("node-telegram-bot-wrapper")
+const TelegramBot = require("node-telegram-bot-api")
+```
+
 ### 方法
 
 #### onText
