@@ -73,15 +73,20 @@ callback:(m,fnucs)=>{console.log("点击了"+m.data);fnucs.cancel()}
 注册一个chat监听器,当exclusive为true时,其他组件都不再响应
 
 ```js
-function registerChatListener(chatId, callback = data => {}, config = {
-   uid: 0,
-   exclusive: true,
+function registerChatListener(chatId, callback = message => {}, config = {
+   uid: 0,//设置后额外判断用户id
+   exclusive: true,//是否排他
    timeout: 60 * 1000,
    timeoutCallback: () => {},
-   complete: () => {},
+   complete: () => {},//finally回调
  })
 
-let funcs=registerChatListener(xxx,()=>{})//返回值是一个功能性对象
+let {
+   exclusive,//是否排他,exclusive(true)时执行到这个callback就拒绝执行其他Listerner
+   pause,//暂停当前这个监听器
+   resetTimeout,//重置超时
+   cancel//取消这个监听器
+}=registerChatListener(...xxx)
 ```
 
 ### 便捷属性

@@ -76,7 +76,7 @@ delete process.env.NTBA_FIX_319
     }
   }
   let id = 0
-  TelegramBot.prototype.registerChatListener = function (chatId, callback = data => {
+  TelegramBot.prototype.registerChatListener = function (chatId, callback = message => {
   }, config = {
     uid: 0,
     exclusive: true,
