@@ -5,9 +5,16 @@
 ### 使用方法
 
 ```javascript
-require("node-telegram-bot-wrapper")
+require("./node-telegram-bot-wrapper")
 const TelegramBot = require("node-telegram-bot-api")
 ```
+或
+
+```javascript
+const TelegramBot = require("./node-telegram-bot-wrapper")
+```
+
+> 项目过于简单,未上传仓库,基于node-telegram-bot-api@0.58.0适配
 
 ### 方法
 
