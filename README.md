@@ -1,6 +1,6 @@
 # node-telegram-bot-wrapper
 
-对node-telegram-bot-api进行简单封装,更简单易用
+对node-telegram-bot-api进行简单封装,更简单易用,如果你不是需要一个非常轻量的服务更建议使用他人封装的完整框架,如:[telegraf](https://github.com/telegraf/telegraf),
 
 ### 使用方法
 
