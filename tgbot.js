@@ -75,7 +75,7 @@ module.exports=TelegramBot
     }
   }
   let id = 0
-  TelegramBot.prototype.registerChatListener = function (chatId, callback = message => {
+  TelegramBot.prototype.registerChatListener = function (chatId, callback = data => {
   }, config = {
     uid: 0,
     exclusive: true,
@@ -124,11 +124,16 @@ module.exports=TelegramBot
     }
   }
 
-  TelegramBot.prototype.button = function (title, callback, data) {
-    data = String(data || ("$btn_" + id++))
-    const r = {
-      text: title, callback_data: data
-    };
+  TelegramBot.prototype.button = function (title, option = {
+    callback: () => {
+    },
+    data: "",
+  }) {
+    let data = String(option.data || ("$btn_" + id++))
+    option.callback_data = option.data
+    const r = Object.assign({text: title}, option);
+    delete r.data
+    let callback = option.callback
     callback && (r.callback = (m, c) => m.data === data && callback(m, c))
     return r
   }
@@ -140,20 +145,24 @@ module.exports=TelegramBot
     },
     complete: () => {
     },
+    option: {},
   }) {
     const callback = config.callback
     let buttonCallback = []
     buttons.forEach(bs => bs.forEach(b => b.callback && buttonCallback.push(b.callback)))
-    return this.sendMessage(chatId, text, {
+    return this.sendMessage(chatId, text, Object.assign({}, config.option, {
       reply_markup: {
         inline_keyboard: buttons
       }
-    }).then(m => {
+    })).then(m => {
       const oid = id++
       let enable = true
       const timeoutCallback = config.timeoutCallback
       const complete = config.complete
       const timeout = config.timeout || 60 * 1000
+      if (!callback && buttonCallback.length === 0) {
+        return m
+      }
       const obj = {
         mid: m.message_id,
         callback: (m) => {
@@ -206,12 +215,7 @@ module.exports=TelegramBot
       }
       return obj
     }, err => {
-      if (err?.message.includes("ETELEGRAM: 400")) {
-        if (err.message.includes("not found")) {
-          return
-        }
-      }
-      console.log(err.message || err)
+      console.log("请求错误", err.message)
       throw err
     })
   }
@@ -269,17 +273,17 @@ module.exports=TelegramBot
           if (m.includes("??")) {
             if (i > 0) {
               if (/\s/.test(s[i])) {
-                return '(?:\\s+(\\S[\\s\\S]*))?'
+                return '(?:\\s+(\\S[\\s\\S]*?))?'
               }
             }
-            return '(\\S[\\s\\S]*)?'
+            return '(\\S[\\s\\S]*?)?'
           } else {
             if (i > 0) {
               if (/\s/.test(s[i])) {
-                return '\\s+([\\s\\S]+)'
+                return '\\s+([\\s\\S]+?)'
               }
             }
-            return '([\\s\\S]+)'
+            return '([\\s\\S]+?)'
           }
         })
       }
@@ -293,10 +297,14 @@ module.exports=TelegramBot
         try {
           await c.call(this, m, d[1], index => d[index], d)
         } catch (e) {
+          if (e?.message.includes("429 Too Many Requests")) {
+            console.error("发送频率过高,已忽略该错误")
+            return
+          }
           try {
             await m.reply(String(e) || "未知错误")
           } catch (e1) {
-            console.error("未知错误", e, e1)
+            console.error("未知错误", String(e), String(e1))
           }
         }
       }
