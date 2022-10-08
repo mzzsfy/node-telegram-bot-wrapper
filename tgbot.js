@@ -23,6 +23,11 @@ module.exports=TelegramBot
     this.chatCallbackListener = this.chatCallbackListener || new forObj()
     this.callbackQueryListener = this.callbackQueryListener || new forObj()
 
+    //启动内100ms内不能监听消息,否则可能导致注册到一半时就开始处理程序
+    this.startStep0 = true
+    setTimeout(() => {
+      delete this.startStep0
+    }, 100)
     //启动时丢弃太久以前的历史消息
     this.startStep1 = true
     setTimeout(() => {
@@ -55,9 +60,14 @@ module.exports=TelegramBot
 
   TelegramBot.prototype.processUpdate = function () {
     let message = arguments[0].message
-    if (message && this.startStep1 && message.date < (new Date().getTime() / 1000 - 60)) {
-      console.log("启动初期丢弃太旧的历史消息", JSON.stringify(message))
-      return
+    if (this.startStep1) {
+      while (this.startStep0) {
+        util.sleepSync(5)
+      }
+      if (message && message.date < (new Date().getTime() / 1000 - 60)) {
+        console.log("启动初期丢弃太旧的历史消息", JSON.stringify(message))
+        return
+      }
     }
 
     //callBack
@@ -129,12 +139,11 @@ module.exports=TelegramBot
     },
     data: "",
   }) {
-    let data = String(option.data || ("$btn_" + id++))
-    option.callback_data = option.data
+    option.callback_data = String(option.data || ("$btn_" + id++))
     const r = Object.assign({text: title}, option);
     delete r.data
     let callback = option.callback
-    callback && (r.callback = (m, c) => m.data === data && callback(m, c))
+    callback && (r.callback = (m, c) => m.data === option.callback_data && callback(m, c))
     return r
   }
   TelegramBot.prototype.sendWithButton = function (chatId, text, buttons = [[]], config = {
@@ -159,10 +168,10 @@ module.exports=TelegramBot
       let enable = true
       const timeoutCallback = config.timeoutCallback
       const complete = config.complete
-      const timeout = config.timeout || 60 * 1000
-      if (!callback && buttonCallback.length === 0) {
+      if (typeof config.timeout !== "undefined" && config.timeout <= 0) {
         return m
       }
+      const timeout = config.timeout || 60 * 1000
       const obj = {
         mid: m.message_id,
         callback: (m) => {
@@ -288,7 +297,7 @@ module.exports=TelegramBot
         })
       }
       r = r + "$"
-      r = new RegExp(r, "m")
+      r = new RegExp(r)
     }
     let _this = this;
     onText.call(_this, r, async (m, d) => {
@@ -297,7 +306,7 @@ module.exports=TelegramBot
         try {
           await c.call(this, m, d[1], index => d[index], d)
         } catch (e) {
-          if (e?.message.includes("429 Too Many Requests")) {
+          if (e?.message?.includes("429 Too Many Requests")) {
             console.error("发送频率过高,已忽略该错误")
             return
           }
