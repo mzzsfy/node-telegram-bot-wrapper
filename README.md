@@ -1,5 +1,5 @@
 # node-telegram-bot-wrapper
-
+[![](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fmzzsfy%2Fnode-telegram-bot-wrapper&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://github.com/mzzsfy)
 对[node-telegram-bot-api](https://github.com/yagop/node-telegram-bot-api)进行简单封装,更简单易用,如果你不是需要一个非常轻量的服务更建议使用他人封装的完整框架,如:[telegraf](https://github.com/telegraf/telegraf),
 
 ### 使用方法
